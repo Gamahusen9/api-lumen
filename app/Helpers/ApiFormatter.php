@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Helpers;
 
@@ -7,7 +7,7 @@ class ApiFormatter {
         return response()->json([
           'success' => $success,
           'message' => $message,
-            'data' => $data
+          'data' => $data
         ], $status);
     }
 }

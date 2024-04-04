@@ -13,9 +13,9 @@ class Stuff extends Model
     public function stuffstock(){
         return $this->hasOne(Stuffstock::class);
     }
-    
-    public function inboundStuffs(){
-        return $this->hasMany(inboundStuffs::class);
+
+    public function inboundStuff(){
+        return $this->hasMany(inboundStuff::class);
     }
 
 }
