@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\models\Stuff;
+use Illuminate\Support\Facades\File;
 use App\models\StuffStock;
 use App\models\InboundStuff;
 use Illuminate\Http\Request;
@@ -192,14 +193,16 @@ class InboundStuffController extends Controller
     public function restore($id)
     {
         try {
-            $inboundStuff = inboundStuff::onlyTrashed()->where('id', $id)->restore();
+            $inboundStuff = inboundStuff::onlyTrashed()->where('id', $id)->first();
             $stock = StuffStock::where('stuff_id', $inboundStuff->stuff_id)->first();
+            $result = $stock->total_available + $inboundStuff->total;
             $stock->update([
-                'total_available' => $stock->total_available,
+                'total_available' => $result
             ]);
-
+            $inboundStuff->restore();
 
             if ($inboundStuff) {
+
                 $data = inboundStuff::find($id);
                 return ApiFormatter::sendResponse(200, true, 'Berhasil mengembalikan data yang dihapus dengan id = ' . $id, $data);
             } else {
@@ -227,7 +230,9 @@ class InboundStuffController extends Controller
     public function permanentDel($id)
     {
         try {
-            $inboundStuff = inboundStuff::onlyTrashed()->where('id', $id)->forceDelete();
+            $inboundStuff = inboundStuff::onlyTrashed()->where('id', $id)->first();
+            $imageName = $inboundStuff->proff_file;
+
 
             if ($inboundStuff) {
                 $check = inboundStuff::onlyTrashed()->where('id', $id)->get();
@@ -235,6 +240,7 @@ class InboundStuffController extends Controller
             } else {
                 return ApiFormatter::sendResponse(200, true, 'Bad request');
             }
+
         } catch (\Throwable $th) {
             return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
         }
