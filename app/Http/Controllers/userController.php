@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\models\lending;
 use App\models\restoration;
+use Illuminate\Support\Facades\Hash;
 use App\models\user;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiFormatter;
@@ -33,7 +34,7 @@ class userController extends Controller
         $user = user::create([
             'username' => $request->input('username'),
             'email' => $request->input('email'),
-            'password' => $request->input('password'),
+            'password' => Hash::make($request->input('password')),
             'role' => $request->input('role'),
         ]);
     }
@@ -134,10 +135,10 @@ public function deleted(){
 
         return ApiFormatter::sendResponse(200, true, 'Melihat data yang dihapus', $users);
 
-    } catch(\Throwable $th){ 
+    } catch(\Throwable $th){
         return ApiFormatter::sendResponse(404, false, 'Proses gagal ', $th->getMessage());
     }
-    
+
 }
 
 public function restore($id){
