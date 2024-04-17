@@ -237,8 +237,8 @@ class InboundStuffController extends Controller
             if ($inboundStuff) {
                 $imageName = $inboundStuff->proff_file;
                 $check = inboundStuff::onlyTrashed()->where('id', $id)->get();
-                $filePath = '/public/uploads/' . $imageName;
-                File::delete($filePath);
+                File::delete('uploads/', $imageName);
+                $inboundStuff->forceDelete();
                 return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen data dengan id = ' . $id . 'dan berhasil menghapus semua data permanent dengan file name: ' . $imageName, $check);
             } else {
                 return ApiFormatter::sendResponse(200, true, 'Bad request');
