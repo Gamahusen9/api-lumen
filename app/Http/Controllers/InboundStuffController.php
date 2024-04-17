@@ -231,12 +231,14 @@ class InboundStuffController extends Controller
     {
         try {
             $inboundStuff = inboundStuff::onlyTrashed()->where('id', $id)->first();
-            $imageName = $inboundStuff->proff_file;
+            
 
 
             if ($inboundStuff) {
+                $imageName = $inboundStuff->proff_file;
                 $check = inboundStuff::onlyTrashed()->where('id', $id)->get();
-                File::delete($imageName);
+                $filePath = '/public/uploads/' . $imageName;
+                File::delete($filePath);
                 return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen data dengan id = ' . $id . 'dan berhasil menghapus semua data permanent dengan file name: ' . $imageName, $check);
             } else {
                 return ApiFormatter::sendResponse(200, true, 'Bad request');
