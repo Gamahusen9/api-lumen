@@ -18,7 +18,7 @@ class StuffStockController extends Controller
     public function index(){
         $stuffStock = StuffStock::with('stuff')->get();
 
-        return ApiFormatter::sendResponse(200, true, 'Lihat semua barang', $stuffStock);
+        return ApiFormatter::sendResponse(200, true, 'Lihat semua barang!!', $stuffStock);
 
         // return response()->json([
         //  'success' => true,
