@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Validator;
 
 class InboundStuffController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     public function index()
     {
         $inboundStuff = InboundStuff::all();
@@ -231,7 +235,7 @@ class InboundStuffController extends Controller
     {
         try {
             $inboundStuff = inboundStuff::onlyTrashed()->where('id', $id)->first();
-            
+
 
 
             if ($inboundStuff) {

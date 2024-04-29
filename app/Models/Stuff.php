@@ -14,6 +14,10 @@ class Stuff extends Model
         return $this->hasOne(Stuffstock::class);
     }
 
+    public function lending(){
+        return $this->hasMany(Lending::class);
+    }
+
     public function inboundStuff(){
         return $this->hasMany(inboundStuff::class);
     }

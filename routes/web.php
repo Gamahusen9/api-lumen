@@ -17,7 +17,10 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->post('/login', 'AuthController@authenticate');
+
+$router->post('/login', 'AuthController@login');
+$router->get('/logout', 'AuthController@logout');
+$router->get('/profile', 'AuthController@me');
 
 //stuff
 $router->group(['prefix' => 'stuff'], function() use ($router){
@@ -91,3 +94,4 @@ $router->post('/restoration/create', 'restorationController@store');
 $router->patch('/restoration/patch/{id}', 'restorationController@update');
 $router->get('/restoration/show/{id}', 'restorationController@show');
 $router->delete('/restoration/delete/{id}', 'restorationController@destroy');
+

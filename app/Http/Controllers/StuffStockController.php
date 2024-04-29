@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Validator;
 
 class StuffStockController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     public function index(){
         $stuffStock = StuffStock::with('stuff')->get();
 
@@ -69,7 +74,7 @@ class StuffStockController extends Controller
             return ApiFormatter::sendResponse(200, true, 'Lihat semua stock barang dengan id. ' . $id, $stock);
 
             // return response()->json([
-            //     'success' => true, 
+            //     'success' => true,
             //     'message' => 'Lihat semua stock barang dengan id ' . $id,
             //     'data' => $stock
             // ], 200);
@@ -86,7 +91,7 @@ class StuffStockController extends Controller
     public function update(Request $request, $id) {
         try{
             $stock = StuffStock::with('stuff')->find($id);
-            
+
 
             $stuff_id = ($request->stuff_id) ? $request->stuff_id : $stock->stuff_id;
             $total_available = ($request->total_available) ? $request->total_available : $stock->total_available;
@@ -99,7 +104,7 @@ class StuffStockController extends Controller
                     'total_defect' => $total_defect
                 ]);
 
-            return ApiFormatter::sendResponse(200, true, 'Barang berhasil diubah', $stock);                
+            return ApiFormatter::sendResponse(200, true, 'Barang berhasil diubah', $stock);
                 // return response()->json([
                 //   'success' => true,
                 //   'message' => 'Barang berhasil diubah',
@@ -124,7 +129,7 @@ class StuffStockController extends Controller
     public function destroy($id){
         try{
             $stuffStock = stuffStock::findOrFail($id);
-    
+
             $stuffStock->delete();
             return ApiFormatter::sendResponse(400, false, 'Barang dihapus', $stuffStock);
             // return response()->json([
@@ -144,13 +149,13 @@ class StuffStockController extends Controller
     public function deleted(){
         try{
             $stock = stuffstock::onlyTrashed()->get();
-    
+
             return ApiFormatter::sendResponse(200, true, 'Melihat data yang dihapus', $stock);
-    
-        } catch(\Throwable $th){ 
+
+        } catch(\Throwable $th){
             return ApiFormatter::sendResponse(404, false, 'Proses gagal ', $th->getMessage());
         }
-        
+
     }
 
     public function restore($id){
@@ -170,8 +175,8 @@ class StuffStockController extends Controller
             } else{
                 return ApiFormatter::sendResponse(404, false, 'bad request');
             }
-    
-    
+
+
         } catch(\Throwable $th){
             return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
         }

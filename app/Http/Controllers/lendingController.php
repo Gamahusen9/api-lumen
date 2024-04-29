@@ -4,64 +4,69 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\models\lending;
+use App\models\restoration;
 use App\models\Stuff;
-use App\models\user;
+use App\models\StuffStock;
+use App\models\User;
+use App\helpers\ApiFormatter;
 use Illuminate\Support\Facades\Validator;
 
 class lendingController extends Controller
 {
-    public function index(){
-        $lending = lending::all();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lihat semua barang',
-            'data' => $lending
-        ],200);
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
+    public function index(){
+        $data = lending::with('stuff', 'user', 'stuff.stuffStock')->get();
+        return ApiFormatter::sendResponse(200, true, 'Lihat semua barang', $data);
     }
 
     public function store(Request $request){
-        $validator = Validator::make
-        ($request->all(), [
-            'stuff_id' => 'required',
-            'date_time' => 'required',
-            'name' => 'required',
-            'user_id' => 'required',
-            'notes' => 'required',
-            'total_stuff' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-             'success' => false,
-             'message' => 'Semua kolom wajib disi!',
-             'data' => $validator->errors()
-            ],400);
+        try{
+            $this->validate($request, [
+                'stuff_id' => 'required',
+                'date_time' => 'required',
+                'name' => 'required',
+                'total_stuff' => 'required'
+            ]);
+
+        $totalAvailable = StuffStock::Where('stuff_id', $request->stuff_id)->value('total_available');
+
+        if (is_null($totalAvailable)) {
+            return ApiFoormatter::sendResponse(400, 'Bad Request', 'belum ada data inbound');
+        }
+
+        elseif ((int)$request->total_stuff > (int)$totalAvailable) {
+            return ApiFormatter::sendResponse(400, 'Bad Request', 'stock tidak tersedia');
     } else {
         $lending = lending::create([
             'stuff_id' => $request->input('stuff_id'),
             'date_time' => $request->input('date_time'),
             'name' => $request->input('name'),
-            'user_id' => $request->input('user_id'),
-            'notes' => $request->input('notes'),
+            'user_id' => auth()->user()->id,
+            'notes' => $request->notes ? $request->notes : '-',
             'total_stuff' => $request->input('total_stuff'),
         ]);
+
+        $totalAvailableNow = (int)$totalAvailable - (int)$request->total_stuff;
+        $stuffStock = StuffStock::where('stuff_id', $request->stuff_id)->update(['total_available' => $totalAvailableNow]);
+
+        $dataLending = Lending::where('id', $lending['id'])->with('user', 'stuff', 'stuff.stuffStock')->first();
+
+        return ApiFormatter::sendResponse(200, 'success', $dataLending);
+    }
+}  catch (\Exception $err){
+    return ApiFormatter::sendResponse(400, 'bad request', $err->getMessage());
+}
+
     }
 
 
-    if ($lending) {
-        return response()->json([
-          'success' => true,
-          'message' => 'Barang berhasil ditambahkan',
-            'data' => $lending
-        ],200);
-    } else{
-        return response()->json([
-          'success' => false,
-          'message' => 'Barang gagal ditambahkan',
-        ],400);
-    }
-    }
+
     public function show($id){
         try{
             $lending = lending::findOrFail($id);
@@ -123,15 +128,25 @@ public function update(Request $request, $id){
 
 public function destroy($id){
     try{
-        $lending = lending::findOrFail($id);
+        $lending = Lending::findOrFail($id);
+        $checkRes = Restoration::where('lending_id', $lending->id)->first();
+        $stuffStock = StuffStock::where('stuff_id', $lending->stuff_id);
+        $totalAvailable = StuffStock::Where('stuff_id', $lending->stuff_id)->value('total_available');
 
-        $lending->delete();
 
-        return response()->json([
-         'success' => true,
-         'message' => 'Barang Hapus Data dengan id $id',
-            'data' => $lending
-        ],200);
+        if ($checkRes) {
+            return ApiFormatter::sendResponse(400, false, 'Barang gagal dihapus!!', $checkRes);
+        } else {
+            $availableUpdate = (int)$lending->total_stuff + $totalAvailable;
+            $stuffStock->update([
+                'total_available' => $availableUpdate
+            ]);
+            $lending->delete();
+            return ApiFormatter::sendResponse(200, true, 'Barang dihapus dengan data id = ' .$id, $checkRes);
+        }
+
+
+
     } catch(\Throwable $th){
         return response()->json([
         'success' => false,
