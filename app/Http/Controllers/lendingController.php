@@ -69,18 +69,11 @@ class lendingController extends Controller
 
     public function show($id){
         try{
-            $lending = lending::findOrFail($id);
-            return response()->json([
-             'success' => true,
-             'message' => 'Lihat Barang dengan id $id',
-                'data' => $lending
-            ],200);
+            $lending = lending::where('id', $id)->with('user', 'restorations', 'restorations.user', 'stuff', 'stuff.stuffstock')->first();
+            return ApiFormatter::sendResponse(200, true, 'Lihat barang dengan id' . $id, $lending);
 
     } catch(Exception $th) {
-        return response()->json([
-       'success' => false,
-       'message' => 'Data dengan id $id tidak ditemukan',
-        ],400);
+        return ApiFormatter::sendResponse(400, false, 'gagal melihat barang');
     }
 }
 
@@ -148,10 +141,7 @@ public function destroy($id){
 
 
     } catch(\Throwable $th){
-        return response()->json([
-        'success' => false,
-        'message' => 'Proses gagal! data dengan id $id tidak ditemukan',
-        ],400);
+        return ApiFormatter::sendResponse(400, false, 'proses gagal data dengan id' . $id . 'tidak ditemukan', $err->getMessage());
     }
 }
 }

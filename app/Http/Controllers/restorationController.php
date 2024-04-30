@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\models\lending;
+use App\models\stuffstock;
 use App\models\restoration;
 use App\models\user;
+use App\helpers\ApiFormatter;
 use Illuminate\Support\Facades\Validator;
 
 class restorationController extends Controller
@@ -34,7 +36,7 @@ class restorationController extends Controller
                 'total_defec_stuff' => 'required',
             ]);
 
-            $lending = Lending::where('id', $lending_id)->first();
+            $lending = Lending::where('id', $request->lending_id)->first();
             $totalStuffRestoration = (int)$request->total_good_stuff + (int)$request->total_defec_stuff;
 
             if ((int)$totalStuffRestoration > (int)$lending['total_stuff']) {
@@ -51,13 +53,14 @@ class restorationController extends Controller
 
             $stuffStock = stuffStock::where('stuff_id', $lending['stuff_id'])->first();
             $totalAvailableStock = (int)$stuffStock['total_available'] + (int)$request->total_good_stuff;
-            $totalDefecStock = (int)$stuffStock['total_defec'] + (int)$request->total_defec_stuff;
+            $totalDefecStock = (int)$stuffStock['total_defect'] + (int)$request->total_defec_stuff;
             $stuffStock->update([
                 'total_available' => $totalAvailableStock,
-                'total_defec' => $totalDefecStock
+                'total_defect' => $totalDefecStock
             ]);
 
-            $lendingRestoration = lending::where('id', $lending_id)->with('user', 'restoration', 'restoration.user', 'stuff', 'stuff.stuffstock')->first();
+            $lendingRestoration = lending::where('id', $lending['id'])->with('user', 'restorations', 'stuff', 'stuff.stuffstock')->first();
+            return ApiFormatter::sendResponse(200, true, 'data berhasil ditambahkan', $lendingRestoration);
         }
 
         }
