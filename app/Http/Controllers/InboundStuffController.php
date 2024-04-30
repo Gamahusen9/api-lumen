@@ -160,21 +160,24 @@ class InboundStuffController extends Controller
             $inboundStuff =  inboundStuff::findOrFail($id);
             $stock = StuffStock::where('stuff_id', $inboundStuff->stuff_id)->first();
 
-            $available_min = $stock->total_available - $inboundStuff->total;
-            $available = ($available_min < 0) ? 0 : $available_min;
-            $defect = ($available_min < 0) ? $stock->total_defect + ($available * -1) : $stock->total_defect;
-            $stock->update([
-                'total_available' => $available,
-                'total_defect' => $defect
-            ]);
 
-            $inboundStuff->delete();
+            if ((int)$stock->total_available < (int)$inboundStuff->total) {
+                return ApiFormatter::sendResponse(400, false, 'jumlah total inbound yang akan dihapus lebih besar dari total available stuff saat ini');
+            } else {
+                $available_min = $stock->total_available - $inboundStuff->total;
+                $available = ($available_min < 0) ? 0 : $available_min;
+                $defect = ($available_min < 0) ? $stock->total_defect + ($available * -1) : $stock->total_defect;
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Barang Hapus Data dengan id: ' . $id,
-                'data' => $inboundStuff
-            ], 200);
+                $stock->update([
+                    'total_available' => $available,
+                    'total_defect' => $defect
+                ]);
+
+                $inboundStuff->delete();
+
+                return ApiFormatter::sendResponse(200, true, 'barang dihapus dengan id' . $id, $inboundStuff);
+            }
+
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

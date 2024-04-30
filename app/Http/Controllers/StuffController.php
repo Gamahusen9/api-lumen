@@ -140,15 +140,19 @@ class StuffController extends Controller
     public function destroy($id)
     {
         try {
-            $stuff = Stuff::findOrFail($id);
             $stuffStock = stuffstock::where('stuff_id', $id);
             $inboundstuff = inboundStuff::where('stuff_id', $id);
+            $stuff = stuff::where('id', $id)->with('inboundstuff', 'stuffstock', 'lending')->first();
 
-            $stuff->delete();
-            $stuffStock->delete();
-            $inboundstuff->delete();
+            if ($stuff) {
+                return ApiFormatter::sendResponse(400, false, 'Tidak dapat menghapus data stuff, sudah terdapat data yang sudah direlasikan!!!');
+            } else{
+                $stuff->delete();
+                return ApiFormatter::sendResponse(200, true, 'Data stuff dengan id ' . $stuffStock['id'] . ' berhasil dihapus.', $stuffStock);
+            }
 
-            return ApiFormatter::sendResponse(200, true, 'Barang dengan data id = ' . $id . ' Berhasil dihapus!!', ['id' => $id]);
+
+
             // return response()->json([
             //  'success' => true,
             //  'message' => 'Barang Hapus Data dengan id $id',
