@@ -29,7 +29,7 @@ class AuthController extends Controller
         $credentials = $request->only(['email', 'password']);
 
         if (! $token =Auth::attempt($credentials)) {
-            return ApiFormatter::sendResponse(400, 'User not found', 'Silahkan cek kembali email dan password anda!!');
+            return ApiFormatter::sendResponse(400, 'User not found', 'Silahkan cek kembali email dan password anda!!!!');
         }
 
         $responWithToken = [
