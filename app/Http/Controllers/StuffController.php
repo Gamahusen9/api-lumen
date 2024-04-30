@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\models\Stuff;
 use App\models\stuffStock;
+use App\models\lending;
 use App\models\inboundStuff;
 use App\helpers\ApiFormatter;
 use Illuminate\Http\Request;
@@ -142,13 +143,18 @@ class StuffController extends Controller
         try {
             $stuffStock = stuffstock::where('stuff_id', $id);
             $inboundstuff = inboundStuff::where('stuff_id', $id);
-            $stuff = stuff::where('id', $id)->with('inboundstuff', 'stuffstock', 'lending')->first();
+            $lending = lending::where('stuff_id', $id);
 
-            if ($stuff) {
-                return ApiFormatter::sendResponse(400, false, 'Tidak dapat menghapus data stuff, sudah terdapat data yang sudah direlasikan!!!');
+            if ($lending) {
+                return ApiFormatter::sendResponse(400, false, 'Tidak dapat menghapus data stuff, sudah terdapat data lending!!!');
+            }elseif ($inboundstuff) {
+                return ApiFormatter::sendResponse(400, false, 'Tidak dapat menghapus data stuff, sudah terdapat data inbound!!!');
+            }elseif ($stuffStock) {
+                return ApiFormatter::sendResponse(400, false, 'Tidak dapat menghapus data stuff, sudah terdapat data stuffstock!!!');
             } else{
+                $stuff = stuff::findORFail($id);
                 $stuff->delete();
-                return ApiFormatter::sendResponse(200, true, 'Data stuff dengan id ' . $stuffStock['id'] . ' berhasil dihapus.', $stuffStock);
+                return ApiFormatter::sendResponse(200, true, 'Data stuff dengan id ' . $stuff['id'] . ' berhasil dihapus.', $stuff);
             }
 
 
