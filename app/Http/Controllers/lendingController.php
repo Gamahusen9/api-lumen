@@ -21,7 +21,7 @@ class lendingController extends Controller
 
     public function index(){
         $data = lending::with('stuff', 'user', 'stuff.stuffStock')->get();
-        return ApiFormatter::sendResponse(200, true, 'Lihat semua barang', $data);
+        return ApiFormatter::sendResponse(200, true, 'Berhasil melihat semua data lending', $data);
     }
 
     public function store(Request $request){
@@ -37,11 +37,11 @@ class lendingController extends Controller
         $totalAvailable = StuffStock::Where('stuff_id', $request->stuff_id)->value('total_available');
 
         if (is_null($totalAvailable)) {
-            return ApiFoormatter::sendResponse(400, 'Bad Request', 'belum ada data inbound');
+            return ApiFoormatter::sendResponse(400, 'Bad Request', 'Belum ada data inbound');
         }
 
         elseif ((int)$request->total_stuff > (int)$totalAvailable) {
-            return ApiFormatter::sendResponse(400, 'Bad Request', 'stock tidak tersedia');
+            return ApiFormatter::sendResponse(400, 'Bad Request', 'Stock tidak tersedia');
     } else {
         $lending = lending::create([
             'stuff_id' => $request->input('stuff_id'),
@@ -57,10 +57,10 @@ class lendingController extends Controller
 
         $dataLending = Lending::where('id', $lending['id'])->with('user', 'stuff', 'stuff.stuffStock')->first();
 
-        return ApiFormatter::sendResponse(200, 'success', $dataLending);
+        return ApiFormatter::sendResponse(200, true, 'Berhasil menambahkan data yang diinput!', $dataLending);
     }
 }  catch (\Exception $err){
-    return ApiFormatter::sendResponse(400, 'bad request', $err->getMessage());
+    return ApiFormatter::sendResponse(400, 'Bad request', $err->getMessage());
 }
 
     }
@@ -73,7 +73,7 @@ class lendingController extends Controller
             return ApiFormatter::sendResponse(200, true, 'Lihat barang dengan id' . $id, $lending);
 
     } catch(Exception $th) {
-        return ApiFormatter::sendResponse(400, false, 'gagal melihat barang');
+        return ApiFormatter::sendResponse(400, false, 'Gagal melihat barang');
     }
 }
 
@@ -141,7 +141,7 @@ public function destroy($id){
 
 
     } catch(\Throwable $th){
-        return ApiFormatter::sendResponse(400, false, 'proses gagal data dengan id' . $id . 'tidak ditemukan', $err->getMessage());
+        return ApiFormatter::sendResponse(400, false, 'Proses gagal data dengan id' . $id . 'tidak ditemukan', $err->getMessage());
     }
 }
 }
