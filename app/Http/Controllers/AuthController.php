@@ -45,7 +45,7 @@ class AuthController extends Controller
      /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Json                                                                                                                                                                                                                                                        Response
      */
     public function me()
     {
