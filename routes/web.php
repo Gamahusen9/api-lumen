@@ -17,6 +17,7 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->group(['middleware' => 'cors'], function ($router){
 
 $router->post('/login', 'AuthController@login');
 $router->get('/logout', 'AuthController@logout');
@@ -94,4 +95,7 @@ $router->post('/restoration/create', 'restorationController@store');
 $router->patch('/restoration/patch/{id}', 'restorationController@update');
 $router->get('/restoration/show/{id}', 'restorationController@show');
 $router->delete('/restoration/delete/{id}', 'restorationController@destroy');
+
+
+});
 
