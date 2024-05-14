@@ -21,7 +21,8 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-	    $this->validate($request, [
+	    try {
+            $this->validate($request, [
             'email' => 'required',
             'password' => 'required'
         ]);
@@ -39,7 +40,11 @@ class AuthController extends Controller
             'expires_in' => auth() -> factory() -> getTTL() * 60 * 24
         ];
 
-        return ApiFormatter::sendResponse(200, 'logged-in', $responWithToken);
+        return ApiFormatter::sendResponse(200, true,  'logged-in', $responWithToken);
+        } catch (\Throwable $th) {
+        return ApiFormatter::sendResponse(400, false, 'logged-in', $th->getMessage());
+            //throw $th;
+        }
     }
 
      /**
@@ -49,7 +54,7 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return ApiFormatter::sendResponse(200, 'success', auth()->user());
+        return ApiFormatter::sendResponse(200, true,  'success', auth()->user());
     }
 
     /**
