@@ -15,7 +15,8 @@ class StuffStockController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function index(){
+    public function index()
+    {
         $stuffStock = StuffStock::with('stuff')->get();
 
         return ApiFormatter::sendResponse(200, true, 'Lihat semua barang!!', $stuffStock);
@@ -28,47 +29,33 @@ class StuffStockController extends Controller
         // ],200);
     }
 
-    public function store(Request $request){
-        $validator = Validator::make
-        ($request->all(), [
-            'stuff_id' => 'required',
-            'total_available' => 'required',
-            'total_defect' => 'required'
-        ]);
+    public function store(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'stuff_id' => 'required',
+                'total_available' => 'required',
+                'total_defect' => 'required',
+            ]);
 
-        if($validator->fails()){
-            return ApiFormatter::sendResponse(400, false, 'Semua kolom wajib diisi', $validator->errors);
-            // return response()->json([
-            //   'success' => false,
-            //   'message' => 'Semua kolom wajib disi!',
-            //     'data' => $validator->errors()
-            // ],400);
-        } else{
             $stock = StuffStock::updateOrCreate([
                 'stuff_id' => $request->input('stuff_id')
-            ],[
+            ], [
                 'total_available' => $request->input('total_available'),
                 'total_defect' => $request->input('total_defect')
             ]);
 
+            return ApiFormatter::sendResponse(200, true, 'Barang berhasil disimpan', $stock);
+        } catch (\Throwable $th) {
+            return ApiFormatter::sendResponse(400, false, 'Terdapat kesalahan input!!', $th->getMessage());
 
-            if($stock) {
-                return ApiFormatter::sendResponse(200, true, 'Barang berhasil ditambahkan', $stock);
-                // return response()->json([
-                //  'success' => true,
-                //  'message' => 'Barang berhasil ditambahkan',
-                //     'data' => $stock
-                // ],200);
-            } else{
-                return ApiFormatter::sendResponse(400, false, 'Barang gagal ditambahkan');
-
-            }
         }
     }
 
 
-    public function show($id){
-        try{
+    public function show($id)
+    {
+        try {
             $stock = StuffStock::with('stuff')->find($id);
 
             return ApiFormatter::sendResponse(200, true, 'Lihat semua stock barang dengan id. ' . $id, $stock);
@@ -78,9 +65,9 @@ class StuffStockController extends Controller
             //     'message' => 'Lihat semua stock barang dengan id ' . $id,
             //     'data' => $stock
             // ], 200);
-        } catch(\Throwable $th){
+        } catch (\Throwable $th) {
 
-            return ApiFormatter::sendResponse(400, false, 'Barang dengan id . '. $id . ' tidak ditemukan', $stock);
+            return ApiFormatter::sendResponse(400, false, 'Barang dengan id . ' . $id . ' tidak ditemukan', $stock);
             // return response() -> json([
             //     'success' => false,
             //     'message' => 'dara dengan id' . $id .'tidak ditemukan'
@@ -88,8 +75,9 @@ class StuffStockController extends Controller
         }
     }
 
-    public function update(Request $request, $id) {
-        try{
+    public function update(Request $request, $id)
+    {
+        try {
             $stock = StuffStock::with('stuff')->find($id);
 
 
@@ -104,20 +92,20 @@ class StuffStockController extends Controller
                     'total_defect' => $total_defect
                 ]);
 
-            return ApiFormatter::sendResponse(200, true, 'Barang berhasil diubah', $stock);
+                return ApiFormatter::sendResponse(200, true, 'Barang berhasil diubah', $stock);
                 // return response()->json([
                 //   'success' => true,
                 //   'message' => 'Barang berhasil diubah',
                 //     'data' => $stock
                 // ],200);
-            } else{
+            } else {
                 return ApiFormatter::sendResponse(400, false, 'gagal', $stock);
                 // return response()->json([
                 //     'success' => false,
                 //     'message' => 'Proses gagal',
                 //   ],400);
             }
-        } catch(\Throwable $th){
+        } catch (\Throwable $th) {
             return ApiFormatter::sendResponse(400, false, 'Bad request', $stock);
             // return response()->json([
             //   'success' => false,
@@ -126,8 +114,9 @@ class StuffStockController extends Controller
         }
     }
 
-    public function destroy($id){
-        try{
+    public function destroy($id)
+    {
+        try {
             $stuffStock = stuffStock::findOrFail($id);
 
             $stuffStock->delete();
@@ -137,7 +126,7 @@ class StuffStockController extends Controller
             //  'message' => 'Barang Hapus Data dengan id' . $id,
             //     'data' => $stuffStock
             // ],200);
-        } catch(\Throwable $th){
+        } catch (\Throwable $th) {
             return ApiFormatter::sendResponse(400, false, 'Gagal', $stock);
             // return response()->json([
             // 'success' => false,
@@ -146,84 +135,89 @@ class StuffStockController extends Controller
         }
     }
 
-    public function deleted(){
-        try{
+    public function deleted()
+    {
+        try {
             $stock = stuffstock::onlyTrashed()->get();
 
             return ApiFormatter::sendResponse(200, true, 'Melihat data yang dihapus', $stock);
 
-        } catch(\Throwable $th){
+        } catch (\Throwable $th) {
             return ApiFormatter::sendResponse(404, false, 'Proses gagal ', $th->getMessage());
         }
 
     }
 
-    public function restore($id){
-        try{
+    public function restore($id)
+    {
+        try {
             $stock = Stuffstock::onlyTrashed()->where('id', $id)->restore();
             $has_stock = Stuffstock::where('stuff_id', $stock->stuff_id)->get();
 
             if ($has_stock->count() == 1) {
-                $message = "Data stok sudah ada, tidak boleh ada duplikat data stok untuk satu barang silahkan update data stok dengan id stock . ". $stock->stuff_id;
-            } else{
+                $message = "Data stok sudah ada, tidak boleh ada duplikat data stok untuk satu barang silahkan update data stok dengan id stock . " . $stock->stuff_id;
+            } else {
                 $stock->restore();
                 $message = "Berhasil mengembalikan data yang telah dihapus";
             }
             if ($stock) {
                 $data = stuffstock::find($id);
                 return ApiFormatter::sendResponse(200, true, $message, ['id' => $id, 'stuff_id' => $stock->stuff_id]);
-            } else{
+            } else {
                 return ApiFormatter::sendResponse(404, false, 'bad request');
             }
 
 
-        } catch(\Throwable $th){
+        } catch (\Throwable $th) {
             return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
         }
-}
-
-public function restoreAll(){
-    try{
-        $stock = stuffstock::onlyTrashed()->restore();
-        if ($stock) {
-            return ApiFormatter::sendResponse(200, true, 'Berhasil mengembalikan semua data yang dihapus');
-        } else{
-            return ApiFormatter::sendResponse(400, false, 'bad request');
-
-        }
-
-    } catch(\Throwable $th){
-        return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
     }
-}
 
-public function permanentDel($id){
-    try{
-        $stock = stuffstock::onlyTrashed()->where('id', $id)->forceDelete();
+    public function restoreAll()
+    {
+        try {
+            $stock = stuffstock::onlyTrashed()->restore();
+            if ($stock) {
+                return ApiFormatter::sendResponse(200, true, 'Berhasil mengembalikan semua data yang dihapus');
+            } else {
+                return ApiFormatter::sendResponse(400, false, 'bad request');
 
-        if ($stock) {
-            $check = stuffstock::onlyTrashed()->where('id', $id)->get();
-            return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen data dengan id = '. $id, $check);
-        } else{
-            return ApiFormatter::sendResponse(200, true, 'Bad request');
+            }
+
+        } catch (\Throwable $th) {
+            return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
         }
-
-
-    } catch(\Throwable $th){
-        return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
     }
-}
 
-public function permanentDelAll(){
-    try{
-        $stock = stuffstockw::onlyTrashed()->forceDelete();
-        if ($stock) {
-            return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen semua data');
-        } else{
-            return ApiFormatter::sendResponse(400, false, 'bad request');
+    public function permanentDel($id)
+    {
+        try {
+            $stock = stuffstock::onlyTrashed()->where('id', $id)->forceDelete();
+
+            if ($stock) {
+                $check = stuffstock::onlyTrashed()->where('id', $id)->get();
+                return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen data dengan id = ' . $id, $check);
+            } else {
+                return ApiFormatter::sendResponse(200, true, 'Bad request');
+            }
+
+
+        } catch (\Throwable $th) {
+            return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
         }
-    } catch(\Throwable $th){
-        return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
     }
-}
+
+    public function permanentDelAll()
+    {
+        try {
+            $stock = stuffstockw::onlyTrashed()->forceDelete();
+            if ($stock) {
+                return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen semua data');
+            } else {
+                return ApiFormatter::sendResponse(400, false, 'bad request');
+            }
+        } catch (\Throwable $th) {
+            return ApiFormatter::sendResponse(404, false, 'Proses gagall', $th->getMessage());
+        }
+    }
 }

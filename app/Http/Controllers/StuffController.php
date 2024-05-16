@@ -20,7 +20,6 @@ class StuffController extends Controller
     public function index()
     {
         $data = Stuff::with('inboundstuff', 'stuffstock')->get();
-
         return ApiFormatter::sendResponse(200, true, 'Lihat semua barang', $data);
     }
 
