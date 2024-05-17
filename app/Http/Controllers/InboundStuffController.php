@@ -19,13 +19,10 @@ class InboundStuffController extends Controller
     }
     public function index()
     {
-        $inboundStuff = InboundStuff::all();
+        $data = InboundStuff::with('stuff')->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lihat semua barang',
-            'data' => $inboundStuff
-        ], 200);
+        return ApiFormatter::sendResponse(200, true, 'Lihat semua barang', $data);
+
     }
 
     public function store(Request $request)

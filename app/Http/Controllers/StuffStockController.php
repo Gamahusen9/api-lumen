@@ -78,7 +78,7 @@ class StuffStockController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $stock = StuffStock::with('stuff')->find($id);
+            $stock = StuffStock::with('stuff')->findORFail($id);
 
 
             $stuff_id = ($request->stuff_id) ? $request->stuff_id : $stock->stuff_id;
@@ -120,14 +120,14 @@ class StuffStockController extends Controller
             $stuffStock = stuffStock::findOrFail($id);
 
             $stuffStock->delete();
-            return ApiFormatter::sendResponse(400, false, 'Barang dihapus', $stuffStock);
+            return ApiFormatter::sendResponse(200, true, 'Stock dihapus', $stuffStock);
             // return response()->json([
             //  'success' => true,
             //  'message' => 'Barang Hapus Data dengan id' . $id,
             //     'data' => $stuffStock
             // ],200);
         } catch (\Throwable $th) {
-            return ApiFormatter::sendResponse(400, false, 'Gagal', $stock);
+            return ApiFormatter::sendResponse(400, false, 'GAGAL!!', $stock);
             // return response()->json([
             // 'success' => false,
             // 'message' => 'Proses gagal! data dengan id '.$id.' tidak ditemukan',

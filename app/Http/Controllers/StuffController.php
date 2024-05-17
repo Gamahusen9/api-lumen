@@ -84,8 +84,8 @@ class StuffController extends Controller
     public function show($id)
     {
         try {
-            $stuff = Stuff::findOrFail($id);
-            return ApiFormatter::sendResponse(201, true, 'Barang dengan data ' . $id, $stuff);
+            $data = Stuff::findORFail($id)->with('inboundstuff', 'stuffstock')->first();
+            return ApiFormatter::sendResponse(200, true, 'Barang dengan data ' . $id, $data);
             // return response()->json([
             //  'success' => true,
             //  'message' => 'Lihat Barang dengan id $id',

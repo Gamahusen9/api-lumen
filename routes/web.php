@@ -61,7 +61,7 @@ $router->group(['prefix' => 'stock'], function() use ($router){
     $router->get('/', 'StuffStockController@index');
     $router->post('/create', 'StuffStockController@store');
     $router->get('/show/{id}', 'StuffStockController@show');
-    $router->patch('/patch/{id}', 'StuffStockController@update');
+    $router->put('/patch/{id}', 'StuffStockController@update');
     $router->delete('/delete/{id}', 'StuffStockController@destroy');
     $router->get('/trash', 'StuffStockController@deleted');
     $router->put('/restore/{id}', 'StuffStockController@restore');
