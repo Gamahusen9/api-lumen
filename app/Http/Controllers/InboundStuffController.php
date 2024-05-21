@@ -27,20 +27,15 @@ class InboundStuffController extends Controller
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'stuff_id' => 'required',
-            'total' => 'required',
-            'date' => 'required',
-            'proff_file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file validation as needed
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Semua kolom wajib disi!',
-                'data' => $validator->errors()
-            ], 400);
-        } else {
+        try {
+            $this->validate($request, [
+                'stuff_id' => 'required',
+                'total' => 'required',
+                'date' => 'required',
+                'proff_file' => 'required',
+            ]);
+
             $file = $request->file('proff_file');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(app()->basePath('public/uploads'), $filename); // Access public directory using app()->basePath('public')
@@ -48,36 +43,26 @@ class InboundStuffController extends Controller
             $result = StuffStock::where('stuff_id', $request->input('stuff_id'))->pluck('total_available')->first();
             $result2 = $result + $request->input('total');
 
-            $stuffStock = StuffStock::where('stuff_id', $request->input('stuff_id'))->update(['total_available' => $result2]);
+            $checkStock = StuffStock::where('stuff_id', $request->input('stuff_id'))->first();
 
-            $inboundStuff = InboundStuff::create([
-                'stuff_id' => $request->input('stuff_id'),
-                'total' => $request->input('total'),
-                'date' => $request->input('date'),
-                'proff_file' => $filename,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil disimpan',
-                'data' => $inboundStuff
-            ], 201);
-        }
-
+            if ($checkStock) {
+                $stuffStock = StuffStock::where('stuff_id', $request->input('stuff_id'))->update(['total_available' => $result2]);
+                $inboundStuff = InboundStuff::create([
+                    'stuff_id' => $request->input('stuff_id'),
+                    'total' => $request->input('total'),
+                    'date' => $request->input('date'),
+                    'proff_file' => $filename,
+                ]);
+                return ApiFormatter::sendResponse(200, true, 'Barang berhasil disimpan', $inboundStuff);
+            } else {
+                return ApiFormatter::sendResponse(400, false, 'Tidak ada data stock, isi stock terlebih dahulu',);
+            }
 
 
-        if ($inboundStuff) {
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Barang berhasil ditambahkan',
-                'data' => $inboundStuff
-            ], 200);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Barang gagal ditambahkan',
-            ], 400);
+
+        } catch (\Throwable $th) {
+            return ApiFormatter::sendResponse(400, false, 'Terdapat kesalahan input!!', $th->getMessage());
         }
     }
 
