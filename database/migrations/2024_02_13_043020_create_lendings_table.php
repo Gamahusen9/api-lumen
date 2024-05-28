@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('stuff_id');
             $table->dateTime('date_time');
-            $table->string('name');
+            $table->string('username');
             $table->bigInteger('user_id');
             $table->text('notes');
             $table->integer('total_stuff');

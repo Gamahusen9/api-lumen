@@ -40,23 +40,29 @@ class InboundStuffController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(app()->basePath('public/uploads'), $filename); // Access public directory using app()->basePath('public')
 
+
+
+            // $checkStock = StuffStock::where('stuff_id', $request->input('stuff_id'))->first();
+
+            $inboundStuff = InboundStuff::create([
+                'stuff_id' => $request->input('stuff_id'),
+                'total' => $request->input('total'),
+                'date' => $request->input('date'),
+                'proff_file' => $filename,
+            ]);
+            $stuff = StuffStock::create([
+                "stuff_id" => $request->input('stuff_id'),
+                "total_available" => $request->input('total'),
+                "total_defect" => 0
+            ]);
+
             $result = StuffStock::where('stuff_id', $request->input('stuff_id'))->pluck('total_available')->first();
             $result2 = $result + $request->input('total');
+            $stuffStock = StuffStock::where('stuff_id', $request->input('stuff_id'))->update(['total_available' => $result2]);
 
-            $checkStock = StuffStock::where('stuff_id', $request->input('stuff_id'))->first();
 
-            if ($checkStock) {
-                $stuffStock = StuffStock::where('stuff_id', $request->input('stuff_id'))->update(['total_available' => $result2]);
-                $inboundStuff = InboundStuff::create([
-                    'stuff_id' => $request->input('stuff_id'),
-                    'total' => $request->input('total'),
-                    'date' => $request->input('date'),
-                    'proff_file' => $filename,
-                ]);
-                return ApiFormatter::sendResponse(200, true, 'Barang berhasil disimpan', $inboundStuff);
-            } else {
-                return ApiFormatter::sendResponse(400, false, 'Tidak ada data stock, isi stock terlebih dahulu',);
-            }
+            return ApiFormatter::sendResponse(200, true, 'Barang berhasil disimpan', $inboundStuff);
+
 
 
 

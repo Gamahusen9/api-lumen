@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Lending extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['stuff_id', 'date_time', 'name', 'user_id' , 'notes', 'total_stuff'];
+    protected $fillable = ['stuff_id', 'date_time', 'username', 'user_id' , 'notes', 'total_stuff'];
 
     public function user(){
         return $this->belongsTo(User::class);

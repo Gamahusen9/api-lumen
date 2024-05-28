@@ -30,14 +30,14 @@ class lendingController extends Controller
             $this->validate($request, [
                 'stuff_id' => 'required',
                 'date_time' => 'required',
-                'name' => 'required',
+                'username' => 'required',
                 'total_stuff' => 'required'
             ]);
 
         $totalAvailable = StuffStock::Where('stuff_id', $request->stuff_id)->value('total_available');
 
         if (is_null($totalAvailable)) {
-            return ApiFoormatter::sendResponse(400, 'Bad Request', 'Belum ada data inbound');
+            return ApiFormatter::sendResponse(400, 'Bad Request', 'Belum ada data inbound');
         }
 
         elseif ((int)$request->total_stuff > (int)$totalAvailable) {
@@ -46,7 +46,7 @@ class lendingController extends Controller
         $lending = lending::create([
             'stuff_id' => $request->input('stuff_id'),
             'date_time' => $request->input('date_time'),
-            'name' => $request->input('name'),
+            'username' => $request->input('username'),
             'user_id' => auth()->user()->id,
             'notes' => $request->notes ? $request->notes : '-',
             'total_stuff' => $request->input('total_stuff'),
@@ -82,7 +82,7 @@ public function update(Request $request, $id){
         $lending = lending::findOrFail($id);
         $stuff_id = ($request->stuff_id) ? $request->stuff_id : $lending->stuff_id;
         $date_time = ($request->date_time)? $request->date_time : $lending->date_time;
-        $name = ($request->name)? $request->name : $lending->name;
+        $username = ($request->username)? $request->username : $lending->username;
         $user_id = ($request->user_id)? $request->user_id : $lending->user_id;
         $notes = ($request->notes)? $request->notes : $lending->notes;
         $total_stuff = ($request->total_stuff)? $request->total_stuff : $lending->total_stuff;
@@ -91,7 +91,7 @@ public function update(Request $request, $id){
             $lending->update([
                 'stuff_id' => $stuff_id,
                 'date_time' => $date_time,
-                'name' => $name,
+                'username' => $username,
                 'user_id' => $user_id,
                 'notes' => $notes,
                 'total_stuff' => $total_stuff,
