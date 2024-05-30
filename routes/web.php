@@ -17,6 +17,8 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+
+
 $router->group(['middleware' => 'cors'], function ($router){
 
 $router->post('/login', 'AuthController@login');
@@ -72,7 +74,7 @@ $router->group(['prefix' => 'stock'], function() use ($router){
 
 $router->get('/lending', 'lendingController@index');
 $router->post('/lending/create', 'lendingController@store');
-$router->patch('/lending/patch/{id}', 'lendingController@update');
+$router->put('/lending/patch/{id}', 'lendingController@update');
 $router->get('/lending/show/{id}', 'lendingController@show');
 $router->delete('/lending/delete/{id}', 'lendingController@destroy');
 
@@ -81,7 +83,7 @@ $router->group(['prefix' => 'user'], function() use ($router){
     $router->get('/', 'userController@index');
     $router->post('/create', 'userController@store');
     $router->get('/show/{id}', 'userController@show');
-    $router->patch('/patch/{id}', 'userController@update');
+    $router->put('/patch/{id}', 'userController@update');
     $router->delete('/delete/{id}', 'userController@destroy');
     $router->get('/trash', 'userController@deleted');
     $router->put('/restore/{id}', 'userController@restore');
@@ -92,7 +94,7 @@ $router->group(['prefix' => 'user'], function() use ($router){
 
 $router->get('/restoration', 'restorationController@index');
 $router->post('/restoration/create', 'restorationController@store');
-$router->patch('/restoration/patch/{id}', 'restorationController@update');
+$router->put('/restoration/patch/{id}', 'restorationController@update');
 $router->get('/restoration/show/{id}', 'restorationController@show');
 $router->delete('/restoration/delete/{id}', 'restorationController@destroy');
 

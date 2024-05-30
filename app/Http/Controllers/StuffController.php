@@ -37,7 +37,7 @@ class StuffController extends Controller
                 'name' => $request->name,
                 'category' => $request->category,
             ]);
-            return ApiFormatter::sendResponse(201, true, 'Barang berhasil disimpan', $data);
+            return ApiFormatter::sendResponse(201, true, 'Data stuff berhasil disimpan', $data);
         } catch (\Throwable $th) {
             if ($th->validator->errors()) {
                 return ApiFormatter::sendResponse(400, false, 'Terdapat kesalahan input', $th->validator->errors);
@@ -66,14 +66,14 @@ class StuffController extends Controller
 
 
         if ($stuff) {
-            return ApiFormatter::sendResponse(200, true, 'Barang berhasil ditambahkan', $stuff);
+            return ApiFormatter::sendResponse(200, true, 'Data stuff berhasil ditambahkan', $stuff);
             // return response()->json([
             //   'success' => true,
-            //   'message' => 'Barang berhasil ditambahkan',
+            //   'message' => 'Stuff berhasil ditambahkan',
             //     'data' => $stuff
             // ],200);
         } else {
-            return ApiFormatter::sendResponse(400, false, 'Barang gagal ditambahkan', $stuff);
+            return ApiFormatter::sendResponse(400, false, 'Data stuff gagal ditambahkan', $stuff);
             // return response()->json([
             //   'success' => false,
             //   'message' => 'Barang gagal ditambahkan',
@@ -86,7 +86,7 @@ class StuffController extends Controller
         try {
 
             $data = Stuff::findOrFail($id);
-            return ApiFormatter::sendResponse(200, true, 'Barang dengan data ' . $id, $data);
+            return ApiFormatter::sendResponse(200, true, 'Barang dengan data stuff id: ' . $id . '', $data);
             // return response()->json([
             //  'success' => true,
             //  'message' => 'Lihat Barang dengan id $id',
@@ -94,7 +94,7 @@ class StuffController extends Controller
             // ],200);
 
         } catch (\Throwable $th) {
-            return ApiFormatter::sendResponse(400, false, 'Barang dengan data ' . $id . 'tidak ditemukan', $th->getMessage());
+            return ApiFormatter::sendResponse(400, false, 'Barang dengan data stuff id: ' . $id . ' tidak ditemukan', $th->getMessage());
             //     return response()->json([
             //    'success' => false,
             //    'message' => 'Data dengan id $id tidak ditemukan',
@@ -114,7 +114,7 @@ class StuffController extends Controller
                 'category' => $category
             ]);
 
-            return ApiFormatter::sendResponse(200, true, 'Barang dengan data ' . $id . 'Berhasil diubah!!', $stuff);
+            return ApiFormatter::sendResponse(200, true, 'Barang dengan data stuff id: ' . $id . ' Berhasil diubah!!', $stuff);
             // if ($stuff) {
             // return response()->json([
             //     'success' => true,
@@ -165,7 +165,7 @@ class StuffController extends Controller
             //     'data' => $stuff
             // ],200);
         } catch (\Throwable $th) {
-            return ApiFormatter::sendResponse(400, false, 'Barang dengan data ' . $id . ' gagal dihapus!!', $th->getMessage());
+            return ApiFormatter::sendResponse(400, false, 'Barang dengan data stuff: ' . $id . ' gagal dihapus!!', $th->getMessage());
             // return response()->json([
             // 'success' => false,
             // 'message' => 'Proses gagal! data dengan id $id tidak ditemukan',
@@ -191,7 +191,7 @@ class StuffController extends Controller
 
             if ($stuff) {
                 $data = Stuff::find($id);
-                return ApiFormatter::sendResponse(200, true, 'Berhasil mengembalikan data yang dihapus dengan id = ' . $id, $data);
+                return ApiFormatter::sendResponse(200, true, 'Berhasil mengembalikan data yang dihapus dengan id : ' . $id, $data);
             } else {
                 return ApiFormatter::sendResponse(404, false, 'bad request');
             }
@@ -221,7 +221,7 @@ class StuffController extends Controller
 
             if ($stuff) {
                 $check = stuff::onlyTrashed()->where('id', $id)->get();
-                return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen data dengan id = ' . $id, $check);
+                return ApiFormatter::sendResponse(200, true, 'Berhasil menghapus permanen data dengan id : ' . $id, $check);
             } else {
                 return ApiFormatter::sendResponse(200, true, 'Bad request');
             }

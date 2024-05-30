@@ -19,7 +19,7 @@ class restorationController extends Controller
     }
 
     public function index(){
-        $restoration = restoration::all();
+        $restoration = restoration::with('user')->get();
 
         return response()->json([
             'success' => true,
@@ -38,6 +38,11 @@ class restorationController extends Controller
 
             $lending = Lending::where('id', $request->lending_id)->first();
             $totalStuffRestoration = (int)$request->total_good_stuff + (int)$request->total_defec_stuff;
+
+            $pengurangan = $lending->total_stuff - $totalStuffRestoration;
+            $lending->update([
+                'total_stuff' => $pengurangan
+            ]);
 
             if ((int)$totalStuffRestoration > (int)$lending['total_stuff']) {
                 return ApiFormatter::sendResponse(400, 'bad request', 'total barang kembali lebih banyak dari barang yang dipinjam!!');

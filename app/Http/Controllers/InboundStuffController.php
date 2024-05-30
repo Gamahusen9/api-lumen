@@ -50,11 +50,17 @@ class InboundStuffController extends Controller
                 'date' => $request->input('date'),
                 'proff_file' => $filename,
             ]);
-            $stuff = StuffStock::create([
-                "stuff_id" => $request->input('stuff_id'),
-                "total_available" => $request->input('total'),
-                "total_defect" => 0
-            ]);
+
+            $stock = StuffStock::where('stuff_id', $request->input('stuff_id'))->first();
+
+            if (!$stock) {
+                $stuff = StuffStock::create([
+                    "stuff_id" => $request->input('stuff_id'),
+                    "total_available" => 0,
+                    "total_defect" => 0
+                ]);
+            }
+
 
             $result = StuffStock::where('stuff_id', $request->input('stuff_id'))->pluck('total_available')->first();
             $result2 = $result + $request->input('total');
@@ -145,11 +151,11 @@ class InboundStuffController extends Controller
     public function destroy($id)
     {
         try {
-            $inboundStuff =  inboundStuff::findOrFail($id);
+            $inboundStuff = inboundStuff::findOrFail($id);
             $stock = StuffStock::where('stuff_id', $inboundStuff->stuff_id)->first();
 
 
-            if ((int)$stock->total_available < (int)$inboundStuff->total) {
+            if ((int) $stock->total_available < (int) $inboundStuff->total) {
                 return ApiFormatter::sendResponse(400, false, 'jumlah total inbound yang akan dihapus lebih besar dari total available stuff saat ini');
             } else {
                 $available_min = $stock->total_available - $inboundStuff->total;

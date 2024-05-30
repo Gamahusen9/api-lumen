@@ -20,7 +20,7 @@ class lendingController extends Controller
     }
 
     public function index(){
-        $data = lending::with('stuff', 'user', 'stuff.stuffStock')->get();
+        $data = lending::with('stuff', 'user', 'stuff.stuffStock', 'restorations')->get();
         return ApiFormatter::sendResponse(200, true, 'Berhasil melihat semua data lending', $data);
     }
 
